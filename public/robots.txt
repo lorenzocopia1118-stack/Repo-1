@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: update to iNexo's production domain
+Sitemap: https://www.inexo.com/sitemap.xml

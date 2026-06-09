@@ -57,6 +57,17 @@ interface FAQ {
   answer: string;
 }
 
+// Replace with iNexo's real Formspree form ID (https://formspree.io → New form).
+// Until then, submissions fall back to a mailto: handoff so nothing is lost.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/your-form-id';
+const CONTACT_EMAIL = 'info@inexo.com';
+const CONTACT_PHONE_DISPLAY = '+1 (000) 000-0000';
+const CONTACT_PHONE_HREF = '+10000000000';
+const CONTACT_ADDRESS = 'Your address here';
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_ADDRESS)}`;
+
+type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
+
 const navLinks = [
   { label: 'Services', href: '#services' },
   { label: 'Why iNexo', href: '#why' },
@@ -176,7 +187,8 @@ const App: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [formData, setFormData] = useState({ name: '', company: '', email: '', service: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<FormStatus>('idle');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -187,18 +199,70 @@ const App: React.FC = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (!formData.name.trim()) next.name = 'Please enter your name.';
+    if (!formData.email.trim()) {
+      next.email = 'Please enter your email.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      next.email = 'Please enter a valid email address.';
+    }
+    if (!formData.message.trim()) next.message = 'Please tell us a little about your needs.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to a real endpoint / email service
-    console.log('Quote request:', formData);
-    setSubmitted(true);
+    if (!validate()) return;
+    setStatus('submitting');
+
+    const subject = `Quote request from ${formData.name}${formData.company ? ` (${formData.company})` : ''}`;
+
+    // If Formspree hasn't been configured yet, fall back to a mailto: handoff
+    // so a real quote request is never silently dropped.
+    if (FORMSPREE_ENDPOINT.includes('your-form-id')) {
+      const body =
+        `Name: ${formData.name}\n` +
+        `Company: ${formData.company || '—'}\n` +
+        `Email: ${formData.email}\n` +
+        `Service: ${formData.service || '—'}\n\n` +
+        `${formData.message}`;
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setStatus('success');
+      return;
+    }
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, _subject: subject }),
+      });
+      if (res.ok) {
+        setStatus('success');
+        setFormData({ name: '', company: '', email: '', service: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-brand-foreground"
+      >
+        Skip to content
+      </a>
       {/* ===== Header ===== */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
@@ -206,10 +270,10 @@ const App: React.FC = () => {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <a href="#home" className="flex items-center gap-2">
-            <img src={logo} alt="iNexo" className="h-7 w-auto sm:h-8" />
+          <a href="#home" className="flex items-center gap-2" aria-label="iNexo — home">
+            <img src={logo} alt="iNexo" width={134} height={34} className="h-7 w-auto sm:h-8" />
           </a>
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -259,6 +323,7 @@ const App: React.FC = () => {
         )}
       </header>
 
+      <main id="main-content">
       {/* ===== Hero ===== */}
       <section id="home" className="relative overflow-hidden bg-grid pt-28 pb-20 sm:pt-32 lg:pt-40 lg:pb-28">
         <div
@@ -522,69 +587,114 @@ const App: React.FC = () => {
                 within one business day.
               </p>
 
-              {/* NOTE: Replace the placeholder contact details below with iNexo's real info. */}
+              {/* NOTE: Replace the placeholder contact details (defined as constants
+                  at the top of this file) with iNexo's real info. */}
               <div className="mt-8 space-y-4">
                 <a
-                  href="mailto:info@inexo.com"
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40"
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                    <Mail className="h-5 w-5" />
+                    <Mail className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span>
                     <span className="block text-sm text-muted-foreground">Email</span>
-                    <span className="font-medium text-foreground">info@inexo.com</span>
+                    <span className="font-medium text-foreground">{CONTACT_EMAIL}</span>
                   </span>
                 </a>
                 <a
-                  href="tel:+10000000000"
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40"
+                  href={`tel:${CONTACT_PHONE_HREF}`}
+                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                    <Phone className="h-5 w-5" />
+                    <Phone className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span>
                     <span className="block text-sm text-muted-foreground">Phone</span>
-                    <span className="font-medium text-foreground">+1 (000) 000-0000</span>
+                    <span className="font-medium text-foreground">{CONTACT_PHONE_DISPLAY}</span>
                   </span>
                 </a>
-                <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                <a
+                  href={MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                    <MapPin className="h-5 w-5" />
+                    <MapPin className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span>
                     <span className="block text-sm text-muted-foreground">Office</span>
-                    <span className="font-medium text-foreground">Your address here</span>
+                    <span className="font-medium text-foreground">{CONTACT_ADDRESS}</span>
+                    <span className="mt-0.5 block text-sm text-brand">View on Google Maps →</span>
                   </span>
-                </div>
+                </a>
               </div>
             </div>
 
             <Card className="border-border">
               <CardContent className="p-6 sm:p-8">
-                {submitted ? (
-                  <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
-                    <CheckCircle2 className="h-14 w-14 text-brand" />
+                {status === 'success' ? (
+                  <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center" role="status">
+                    <CheckCircle2 className="h-14 w-14 text-brand" aria-hidden="true" />
                     <h3 className="mt-4 text-xl font-semibold text-foreground">Thank you!</h3>
                     <p className="mt-2 max-w-sm text-muted-foreground">
                       Your request has been received. A member of the iNexo team will be in touch shortly.
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-label="Request a quote">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" placeholder="Your name" value={formData.name} onChange={handleInputChange} required />
+                        <Label htmlFor="name">
+                          Name <span className="text-brand">*</span>
+                        </Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          placeholder="Your name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          autoComplete="name"
+                          aria-required="true"
+                          aria-invalid={!!errors.name}
+                          aria-describedby={errors.name ? 'name-error' : undefined}
+                        />
+                        {errors.name && (
+                          <p id="name-error" className="text-sm text-destructive">{errors.name}</p>
+                        )}
                       </div>
                       <div className="space-y-1.5">
                         <Label htmlFor="company">Company</Label>
-                        <Input id="company" name="company" placeholder="Company name" value={formData.company} onChange={handleInputChange} />
+                        <Input
+                          id="company"
+                          name="company"
+                          placeholder="Company name"
+                          value={formData.company}
+                          onChange={handleInputChange}
+                          autoComplete="organization"
+                        />
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" placeholder="you@company.com" value={formData.email} onChange={handleInputChange} required />
+                      <Label htmlFor="email">
+                        Email <span className="text-brand">*</span>
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@company.com"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        autoComplete="email"
+                        aria-required="true"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
+                      />
+                      {errors.email && (
+                        <p id="email-error" className="text-sm text-destructive">{errors.email}</p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="service">Service of interest</Label>
@@ -605,7 +715,9 @@ const App: React.FC = () => {
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message">
+                        Message <span className="text-brand">*</span>
+                      </Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -613,13 +725,32 @@ const App: React.FC = () => {
                         placeholder="Tell us about your shipment, route or sourcing need…"
                         value={formData.message}
                         onChange={handleInputChange}
-                        required
+                        aria-required="true"
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? 'message-error' : undefined}
                       />
+                      {errors.message && (
+                        <p id="message-error" className="text-sm text-destructive">{errors.message}</p>
+                      )}
                     </div>
-                    <Button type="submit" size="lg" className="w-full bg-brand text-brand-foreground hover:bg-brand/90">
-                      Request a Quote
-                      <ArrowRight className="ml-1.5 h-4 w-4" />
+                    {status === 'error' && (
+                      <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                        Something went wrong sending your request. Please try again, or email us directly at{' '}
+                        <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium underline">{CONTACT_EMAIL}</a>.
+                      </p>
+                    )}
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={status === 'submitting'}
+                      className="w-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-70"
+                    >
+                      {status === 'submitting' ? 'Sending…' : 'Request a Quote'}
+                      {status !== 'submitting' && <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />}
                     </Button>
+                    <p className="text-center text-xs text-muted-foreground">
+                      We&apos;ll only use your details to respond to your enquiry.
+                    </p>
                   </form>
                 )}
               </CardContent>
@@ -627,13 +758,14 @@ const App: React.FC = () => {
           </div>
         </div>
       </section>
+      </main>
 
       {/* ===== Footer ===== */}
       <footer className="bg-[var(--ink)] py-14 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 md:grid-cols-4">
             <div className="md:col-span-1">
-              <img src={logoWhite} alt="iNexo" className="h-8 w-auto" />
+              <img src={logoWhite} alt="iNexo" width={134} height={34} loading="lazy" className="h-8 w-auto" />
               <p className="mt-4 max-w-xs text-sm text-white/60">
                 International logistics, cargo insurance, representation and trading — connecting your business to every corner
                 of the globe.
@@ -663,11 +795,30 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-sm font-semibold text-white">Get in touch</h3>
               <ul className="mt-4 space-y-2.5 text-sm text-white/60">
-                <li className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-brand" /> info@inexo.com
+                <li>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-2 transition-colors hover:text-brand">
+                    <Mail className="h-4 w-4 text-brand" aria-hidden="true" /> {CONTACT_EMAIL}
+                  </a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-brand" /> +1 (000) 000-0000
+                <li>
+                  <a href={`tel:${CONTACT_PHONE_HREF}`} className="flex items-center gap-2 transition-colors hover:text-brand">
+                    <Phone className="h-4 w-4 text-brand" aria-hidden="true" /> {CONTACT_PHONE_DISPLAY}
+                  </a>
+                </li>
+                <li>
+                  {/* TODO: replace with iNexo's real LinkedIn URL */}
+                  <a
+                    href="https://www.linkedin.com/company/inexo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="iNexo on LinkedIn"
+                    className="flex items-center gap-2 transition-colors hover:text-brand"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-brand" aria-hidden="true">
+                      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
+                    </svg>
+                    LinkedIn
+                  </a>
                 </li>
               </ul>
               <Button asChild className="mt-5 bg-brand text-brand-foreground hover:bg-brand/90">
