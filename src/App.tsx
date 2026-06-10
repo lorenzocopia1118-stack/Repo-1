@@ -28,6 +28,8 @@ import {
   Anchor,
   Warehouse,
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { DotGlobeHero } from '@/components/ui/globe-hero';
 import logo from '@/assets/inexo-logo.png';
 import logoWhite from '@/assets/inexo-logo-white.png';
 
@@ -341,78 +343,94 @@ const App: React.FC = () => {
       </header>
 
       <main id="main-content">
-      {/* ===== Hero ===== */}
-      <section id="home" className="relative overflow-hidden bg-grid pt-28 pb-20 sm:pt-32 lg:pt-40 lg:pb-28">
-        <div aria-hidden className="aurora" />
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <div>
-            <Badge className="mb-5 border-brand/20 bg-brand/10 text-brand hover:bg-brand/10">
-              <Globe2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              {TAGLINE}
-            </Badge>
-            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Connecting your business to
-              <span className="text-gradient-brand"> every corner of the globe</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              iNexo delivers freight forwarding, cargo insurance, commercial representation and trading under one roof — moving
-              your goods across air, sea and land, protected from origin to destination.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="bg-brand text-brand-foreground shadow-glow hover:bg-brand/90">
-                <a href="#contact">
-                  Get a Quote
-                  <ArrowRight className="ml-1.5 h-4 w-4" />
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <a href="#services">Explore Services</a>
-              </Button>
-            </div>
-            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-brand" /> Air, sea & land freight
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-brand" /> Insured end-to-end
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-brand" /> Competitive pricing
-              </span>
-            </div>
+      {/* ===== Hero (3D globe) ===== */}
+      <DotGlobeHero
+        id="home"
+        rotationSpeed={0.0035}
+        color="#1b5cf0"
+        opacity={0.28}
+        className="bg-grid h-auto min-h-screen pt-28 pb-20 sm:pt-32 lg:pt-36"
+      >
+        {/* Legibility + glow overlays */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/50 via-background/10 to-background/80"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/3 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-brand/10 blur-3xl"
+        />
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6"
+        >
+          <Badge className="mb-6 border-brand/20 bg-brand/10 text-brand backdrop-blur-sm hover:bg-brand/10">
+            <Globe2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+            {TAGLINE}
+          </Badge>
+          <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl xl:text-7xl">
+            Connecting your business to
+            <span className="text-gradient-brand"> every corner of the globe</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            iNexo delivers freight forwarding, cargo insurance, commercial representation and trading under one roof — moving
+            your goods across air, sea and land, protected from origin to destination.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg" className="bg-brand text-brand-foreground shadow-glow hover:bg-brand/90">
+              <a href="#contact">
+                Get a Quote
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="bg-background/60 backdrop-blur-sm">
+              <a href="#services">Explore Services</a>
+            </Button>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-brand" /> Air, sea & land freight
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-brand" /> Insured end-to-end
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-brand" /> Competitive pricing
+            </span>
           </div>
 
-          {/* Visual */}
-          <div className="relative animate-float">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-card/80 shadow-glow backdrop-blur-sm">
-              <div className="grid grid-cols-2 gap-px bg-border">
-                {[
-                  { icon: <Plane className="h-6 w-6" />, label: 'Air Freight', sub: 'Fast, time-critical' },
-                  { icon: <Ship className="h-6 w-6" />, label: 'Sea Freight', sub: 'FCL & LCL' },
-                  { icon: <Truck className="h-6 w-6" />, label: 'Land Freight', sub: 'Road & rail' },
-                  { icon: <Warehouse className="h-6 w-6" />, label: 'Warehousing', sub: 'Storage & distribution' },
-                ].map((item) => (
-                  <div key={item.label} className="bg-card p-6">
-                    <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                      {item.icon}
-                    </div>
-                    <div className="font-semibold text-foreground">{item.label}</div>
-                    <div className="text-sm text-muted-foreground">{item.sub}</div>
+          {/* Freight modes card */}
+          <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-2xl border border-border bg-card/70 shadow-glow backdrop-blur-md">
+            <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+              {[
+                { icon: <Plane className="h-6 w-6" />, label: 'Air Freight', sub: 'Fast, time-critical' },
+                { icon: <Ship className="h-6 w-6" />, label: 'Sea Freight', sub: 'FCL & LCL' },
+                { icon: <Truck className="h-6 w-6" />, label: 'Land Freight', sub: 'Road & rail' },
+                { icon: <Warehouse className="h-6 w-6" />, label: 'Warehousing', sub: 'Storage & distribution' },
+              ].map((item) => (
+                <div key={item.label} className="bg-card/80 p-5 text-left">
+                  <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                    {item.icon}
                   </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <Anchor className="h-4 w-4 text-brand" /> Origin to destination, fully tracked
+                  <div className="font-semibold text-foreground">{item.label}</div>
+                  <div className="text-sm text-muted-foreground">{item.sub}</div>
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-                  Live <span className="h-2 w-2 animate-pulse-glow rounded-full bg-brand" />
-                </span>
+              ))}
+            </div>
+            <div className="flex flex-col items-center justify-between gap-2 border-t border-border bg-muted/40 px-6 py-4 sm:flex-row">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Anchor className="h-4 w-4 text-brand" /> Origin to destination, fully tracked
               </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
+                Live <span className="h-2 w-2 animate-pulse-glow rounded-full bg-brand" />
+              </span>
             </div>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </DotGlobeHero>
 
       {/* ===== Partner marquee ===== */}
       <section aria-label="Trusted carriers and partners" className="border-y border-border bg-muted/30 py-8">

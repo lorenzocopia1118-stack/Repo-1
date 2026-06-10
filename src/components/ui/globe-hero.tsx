@@ -6,15 +6,13 @@ import React, { useRef } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
-interface DotGlobeHeroProps {
+interface DotGlobeHeroProps extends React.HTMLAttributes<HTMLDivElement> {
   rotationSpeed?: number;
   globeRadius?: number;
   /** Wireframe color of the globe. Defaults to the brand blue. */
   color?: string;
   /** Opacity of the wireframe lines. */
   opacity?: number;
-  className?: string;
-  children?: React.ReactNode;
 }
 
 const Globe: React.FC<{
