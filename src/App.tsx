@@ -431,7 +431,7 @@ const App: React.FC = () => {
             <span className="text-sm font-semibold uppercase tracking-widest text-brand">What We Do</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Core Services</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Three pillars of international trade, executed with precision and speed.
+              Four pillars of international trade, executed with precision and speed.
             </p>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2">

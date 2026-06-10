@@ -5,6 +5,7 @@ on:
     branches:
       - claude/elegant-hawking-KtdC3
       - claude/quirky-dijkstra-cwhk1p
+      - claude/gallant-hamilton-ynr1zk
   workflow_dispatch:
 
 # Allow the workflow to publish to GitHub Pages
