@@ -63,6 +63,7 @@ const CONTACT_EMAIL = 'inexotrade@gmail.com';
 const CONTACT_ADDRESS = '610 Rincón, Montevideo, Uruguay';
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_ADDRESS)}`;
 const LEGAL_NAME = 'Inexo SA';
+const TAGLINE = 'Global trade, simplified.';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -331,8 +332,8 @@ const App: React.FC = () => {
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <Badge className="mb-5 border-brand/20 bg-brand/10 text-brand hover:bg-brand/10">
-              <Globe2 className="mr-1.5 h-3.5 w-3.5" />
-              International logistics & trade partner
+              <Globe2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              {TAGLINE}
             </Badge>
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Connecting your business to
@@ -752,7 +753,8 @@ const App: React.FC = () => {
           <div className="grid gap-10 md:grid-cols-4">
             <div className="md:col-span-1">
               <img src={logoWhite} alt="iNexo" width={134} height={34} loading="lazy" className="h-8 w-auto" />
-              <p className="mt-4 max-w-xs text-sm text-white/60">
+              <p className="mt-3 text-sm font-semibold text-brand">{TAGLINE}</p>
+              <p className="mt-3 max-w-xs text-sm text-white/60">
                 International logistics, cargo insurance, representation and trading — connecting your business to every corner
                 of the globe.
               </p>
