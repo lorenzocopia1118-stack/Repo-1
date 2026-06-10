@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # TODO: update to iNexo's production domain
-Sitemap: https://www.inexo.com/sitemap.xml
+Sitemap: https://lorenzocopia1118-stack.github.io/Repo-1/sitemap.xml
