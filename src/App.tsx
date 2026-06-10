@@ -16,7 +16,6 @@ import {
   Globe2,
   ArrowRight,
   Mail,
-  Phone,
   MapPin,
   CheckCircle2,
   Menu,
@@ -60,11 +59,10 @@ interface FAQ {
 // Replace with iNexo's real Formspree form ID (https://formspree.io → New form).
 // Until then, submissions fall back to a mailto: handoff so nothing is lost.
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/your-form-id';
-const CONTACT_EMAIL = 'info@inexo.com';
-const CONTACT_PHONE_DISPLAY = '+1 (000) 000-0000';
-const CONTACT_PHONE_HREF = '+10000000000';
-const CONTACT_ADDRESS = 'Your address here';
+const CONTACT_EMAIL = 'inexotrade@gmail.com';
+const CONTACT_ADDRESS = '610 Rincón, Montevideo, Uruguay';
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_ADDRESS)}`;
+const LEGAL_NAME = 'Inexo SA';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -603,18 +601,6 @@ const App: React.FC = () => {
                   </span>
                 </a>
                 <a
-                  href={`tel:${CONTACT_PHONE_HREF}`}
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                    <Phone className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span>
-                    <span className="block text-sm text-muted-foreground">Phone</span>
-                    <span className="font-medium text-foreground">{CONTACT_PHONE_DISPLAY}</span>
-                  </span>
-                </a>
-                <a
                   href={MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -801,23 +787,13 @@ const App: React.FC = () => {
                   </a>
                 </li>
                 <li>
-                  <a href={`tel:${CONTACT_PHONE_HREF}`} className="flex items-center gap-2 transition-colors hover:text-brand">
-                    <Phone className="h-4 w-4 text-brand" aria-hidden="true" /> {CONTACT_PHONE_DISPLAY}
-                  </a>
-                </li>
-                <li>
-                  {/* TODO: replace with iNexo's real LinkedIn URL */}
                   <a
-                    href="https://www.linkedin.com/company/inexo"
+                    href={MAPS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="iNexo on LinkedIn"
-                    className="flex items-center gap-2 transition-colors hover:text-brand"
+                    className="flex items-start gap-2 transition-colors hover:text-brand"
                   >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-brand" aria-hidden="true">
-                      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
-                    </svg>
-                    LinkedIn
+                    <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand" aria-hidden="true" /> {CONTACT_ADDRESS}
                   </a>
                 </li>
               </ul>
@@ -827,7 +803,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-white/50 sm:flex-row">
-            <p>&copy; {new Date().getFullYear()} iNexo. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="transition-colors hover:text-white">Privacy</a>
               <a href="#" className="transition-colors hover:text-white">Terms</a>
