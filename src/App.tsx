@@ -195,6 +195,24 @@ const App: React.FC = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Reveal elements as they scroll into view (futuristic fade/slide-up).
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>('.reveal');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -325,11 +343,8 @@ const App: React.FC = () => {
       <main id="main-content">
       {/* ===== Hero ===== */}
       <section id="home" className="relative overflow-hidden bg-grid pt-28 pb-20 sm:pt-32 lg:pt-40 lg:pb-28">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 right-0 h-[480px] w-[480px] rounded-full bg-brand/10 blur-3xl"
-        />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div aria-hidden className="aurora" />
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <Badge className="mb-5 border-brand/20 bg-brand/10 text-brand hover:bg-brand/10">
               <Globe2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
@@ -337,14 +352,14 @@ const App: React.FC = () => {
             </Badge>
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Connecting your business to
-              <span className="text-brand"> every corner of the globe</span>
+              <span className="text-gradient-brand"> every corner of the globe</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
               iNexo delivers freight forwarding, cargo insurance, commercial representation and trading under one roof — moving
               your goods across air, sea and land, protected from origin to destination.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="bg-brand text-brand-foreground hover:bg-brand/90">
+              <Button asChild size="lg" className="bg-brand text-brand-foreground shadow-glow hover:bg-brand/90">
                 <a href="#contact">
                   Get a Quote
                   <ArrowRight className="ml-1.5 h-4 w-4" />
@@ -368,8 +383,8 @@ const App: React.FC = () => {
           </div>
 
           {/* Visual */}
-          <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+          <div className="relative animate-float">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-card/80 shadow-glow backdrop-blur-sm">
               <div className="grid grid-cols-2 gap-px bg-border">
                 {[
                   { icon: <Plane className="h-6 w-6" />, label: 'Air Freight', sub: 'Fast, time-critical' },
@@ -391,7 +406,7 @@ const App: React.FC = () => {
                   <Anchor className="h-4 w-4 text-brand" /> Origin to destination, fully tracked
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-                  Live <span className="h-2 w-2 animate-pulse rounded-full bg-brand" />
+                  Live <span className="h-2 w-2 animate-pulse-glow rounded-full bg-brand" />
                 </span>
               </div>
             </div>
@@ -420,7 +435,7 @@ const App: React.FC = () => {
       {/* ===== Services ===== */}
       <section id="services" className="py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="reveal mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand">What we do</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Core Services</h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -428,10 +443,11 @@ const App: React.FC = () => {
             </p>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
-            {services.map((service) => (
+            {services.map((service, idx) => (
               <Card
                 key={service.title}
-                className="group relative overflow-hidden border-border transition-all hover:border-brand/40 hover:shadow-lg"
+                style={{ '--reveal-delay': `${idx * 90}ms` } as React.CSSProperties}
+                className="reveal hover-glow group relative overflow-hidden border-border transition-all hover:border-brand/40"
               >
                 <CardContent className="p-7">
                   <div className="flex items-start justify-between">
@@ -462,8 +478,12 @@ const App: React.FC = () => {
       {/* ===== Stats band ===== */}
       <section className="border-y border-border bg-[var(--ink)] py-16 text-white">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 sm:px-6 lg:grid-cols-4 lg:px-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
+          {stats.map((stat, idx) => (
+            <div
+              key={stat.label}
+              style={{ '--reveal-delay': `${idx * 90}ms` } as React.CSSProperties}
+              className="reveal text-center"
+            >
               <div className="text-4xl font-bold sm:text-5xl">
                 <span className="text-brand">{stat.value}</span>
                 <span className="text-brand">{stat.suffix}</span>
@@ -477,7 +497,7 @@ const App: React.FC = () => {
       {/* ===== Why iNexo ===== */}
       <section id="why" className="py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="reveal mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand">Why iNexo</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               A logistics partner, not just a vendor
@@ -487,10 +507,11 @@ const App: React.FC = () => {
             </p>
           </div>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {valueProps.map((vp) => (
+            {valueProps.map((vp, idx) => (
               <div
                 key={vp.title}
-                className="rounded-xl border border-border bg-card p-6 transition-colors hover:border-brand/40"
+                style={{ '--reveal-delay': `${idx * 80}ms` } as React.CSSProperties}
+                className="reveal hover-glow rounded-xl border border-border bg-card p-6 transition-colors hover:border-brand/40"
               >
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
                   {vp.icon}
@@ -506,7 +527,7 @@ const App: React.FC = () => {
       {/* ===== Process ===== */}
       <section id="process" className="bg-muted/40 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="reveal mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-widest text-brand">How we work</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">From enquiry to delivery</h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -515,7 +536,11 @@ const App: React.FC = () => {
           </div>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, idx) => (
-              <div key={step.number} className="relative rounded-xl border border-border bg-card p-6">
+              <div
+                key={step.number}
+                style={{ '--reveal-delay': `${idx * 90}ms` } as React.CSSProperties}
+                className="reveal relative rounded-xl border border-border bg-card p-6"
+              >
                 <span className="text-3xl font-bold text-brand/30">{step.number}</span>
                 <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
