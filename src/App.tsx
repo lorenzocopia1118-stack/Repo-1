@@ -8,13 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Ship,
-  Plane,
-  Truck,
   ShieldCheck,
   Handshake,
   Boxes,
   Globe2,
   ArrowRight,
+  ChevronDown,
   Mail,
   MapPin,
   CheckCircle2,
@@ -25,8 +24,6 @@ import {
   BadgeCheck,
   TrendingUp,
   PackageCheck,
-  Anchor,
-  Warehouse,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { DotGlobeHero } from '@/components/ui/globe-hero';
@@ -367,69 +364,46 @@ const App: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6"
         >
-          <Badge className="mb-6 border-brand/20 bg-brand/10 text-brand backdrop-blur-sm hover:bg-brand/10">
-            <Globe2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-            {TAGLINE}
-          </Badge>
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-brand">iNexo</p>
           <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl xl:text-7xl">
-            Connecting your business to
-            <span className="text-gradient-brand"> every corner of the globe</span>
+            Global <span className="text-gradient-brand">Logistics &amp; Insurance</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            iNexo delivers freight forwarding, cargo insurance, commercial representation and trading under one roof — moving
-            your goods across air, sea and land, protected from origin to destination.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+            Cargo Insurance &middot; International Logistics &middot; Sales &amp; Representation
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="bg-brand text-brand-foreground shadow-glow hover:bg-brand/90">
-              <a href="#contact">
-                Get a Quote
+              <a href="#services">
+                Our Services
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </a>
             </Button>
             <Button asChild size="lg" variant="outline" className="bg-background/60 backdrop-blur-sm">
-              <a href="#services">Explore Services</a>
+              <a href="#contact">Contact Us</a>
             </Button>
           </div>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-brand" /> Air, sea & land freight
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-brand" /> Insured end-to-end
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-brand" /> Competitive pricing
-            </span>
-          </div>
-
-          {/* Freight modes card */}
-          <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-2xl border border-border bg-card/70 shadow-glow backdrop-blur-md">
-            <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
-              {[
-                { icon: <Plane className="h-6 w-6" />, label: 'Air Freight', sub: 'Fast, time-critical' },
-                { icon: <Ship className="h-6 w-6" />, label: 'Sea Freight', sub: 'FCL & LCL' },
-                { icon: <Truck className="h-6 w-6" />, label: 'Land Freight', sub: 'Road & rail' },
-                { icon: <Warehouse className="h-6 w-6" />, label: 'Warehousing', sub: 'Storage & distribution' },
-              ].map((item) => (
-                <div key={item.label} className="bg-card/80 p-5 text-left">
-                  <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                    {item.icon}
-                  </div>
-                  <div className="font-semibold text-foreground">{item.label}</div>
-                  <div className="text-sm text-muted-foreground">{item.sub}</div>
-                </div>
-              ))}
+          <div className="mx-auto mt-12 flex max-w-md items-center justify-center gap-10 sm:gap-16">
+            <div className="text-center">
+              <div className="text-gradient-brand text-4xl font-bold sm:text-5xl">99%</div>
+              <p className="mt-1 text-sm text-muted-foreground">On-Time Delivery</p>
             </div>
-            <div className="flex flex-col items-center justify-between gap-2 border-t border-border bg-muted/40 px-6 py-4 sm:flex-row">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Anchor className="h-4 w-4 text-brand" /> Origin to destination, fully tracked
-              </div>
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-                Live <span className="h-2 w-2 animate-pulse-glow rounded-full bg-brand" />
-              </span>
+            <div className="h-12 w-px bg-border" />
+            <div className="text-center">
+              <div className="text-gradient-brand text-4xl font-bold sm:text-5xl">25+</div>
+              <p className="mt-1 text-sm text-muted-foreground">Years Experience</p>
             </div>
           </div>
         </motion.div>
+
+        {/* Scroll cue */}
+        <a
+          href="#services"
+          aria-label="Scroll to services"
+          className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 text-xs font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:text-brand"
+        >
+          Scroll
+          <ChevronDown className="h-5 w-5 animate-bounce" />
+        </a>
       </DotGlobeHero>
 
       {/* ===== Partner marquee ===== */}
@@ -454,10 +428,10 @@ const App: React.FC = () => {
       <section id="services" className="py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal mx-auto max-w-2xl text-center">
-            <span className="text-sm font-semibold uppercase tracking-widest text-brand">What we do</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-brand">What We Do</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Core Services</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Four integrated capabilities that move, protect, represent and supply your business across borders.
+              Three pillars of international trade, executed with precision and speed.
             </p>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
